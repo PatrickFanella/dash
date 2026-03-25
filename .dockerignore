@@ -1,0 +1,7 @@
+.git
+bin/
+frontend/dist
+frontend/node_modules
+backend/cmd/almaz/dist
+docs/
+*.md
