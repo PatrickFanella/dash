@@ -14,6 +14,7 @@ import (
 	"github.com/patrickfanella/dash/backend/internal/api"
 	"github.com/patrickfanella/dash/backend/internal/config"
 	"github.com/patrickfanella/dash/backend/internal/database"
+	"github.com/patrickfanella/dash/backend/internal/models"
 )
 
 func main() {
@@ -40,9 +41,9 @@ func main() {
 		log.Fatalf("database: %v", err)
 	}
 	defer pool.Close()
-	_ = pool // passed to handlers in later issues
 
-	router := api.NewRouter()
+	queries := models.New(pool)
+	router := api.NewRouter(queries, pool)
 
 	// Mount the embedded frontend for all non-API routes.
 	distFS, err := fs.Sub(frontendFS, "dist")
