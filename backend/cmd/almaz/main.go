@@ -13,17 +13,34 @@ import (
 
 	"github.com/patrickfanella/dash/backend/internal/api"
 	"github.com/patrickfanella/dash/backend/internal/config"
+	"github.com/patrickfanella/dash/backend/internal/database"
 )
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
 		os.Exit(runHealthcheck())
 	}
+	if len(os.Args) > 1 && os.Args[1] == "seed" {
+		// Handled in importer package (future issue).
+		log.Fatal("seed command not yet implemented")
+	}
 
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("config: %v", err)
 	}
+
+	if err := database.RunMigrations(cfg.DatabaseURL, "migrations"); err != nil {
+		log.Fatalf("migrations: %v", err)
+	}
+
+	ctx := context.Background()
+	pool, err := database.Connect(ctx, cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("database: %v", err)
+	}
+	defer pool.Close()
+	_ = pool // passed to handlers in later issues
 
 	router := api.NewRouter()
 
