@@ -1,0 +1,495 @@
+pageInfo:
+  title: ALMAZ // NERV
+  description: Command & Control
+  logo: >-
+    https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Nerv_logo.svg/180px-Nerv_logo.svg.png
+  footerText: ''
+  navLinks:
+    - title: Grafana
+      path: https://grafana.subcult.tv
+    - title: Uptime
+      path: https://uptime.subcult.tv
+    - title: Portainer
+      path: https://portainer.subcult.tv
+appConfig:
+  theme: dashy-docs
+  startingView: default
+  statusCheck: true
+  statusCheckInterval: 60
+  language: en
+  layout: horizontal
+  iconSize: medium
+  hideComponents:
+    hideFooter: true
+    hideHeading: true
+    hideNav: true
+    hideSearch: false
+    hideSettings: true
+  webSearch:
+    searchEngine: duckduckgo
+    openingMethod: newtab
+    disableWebSearch: false
+    openUrlsDirectly: false
+    searchBangs: {}
+  enableFontAwesome: true
+  cssThemes:
+    - ''
+  customColors:
+    eva-unit-01:
+      primary: '#bb86fc'
+      background: '#0a000e'
+      background-darker: '#05000a'
+      item-group-background: '#0f051a'
+      item-background: '#0d0315'
+      item-background-hover: '#1a0a2e'
+      item-text-color: '#e0d0f0'
+      item-text-color-hover: '#00ff88'
+      item-group-outer-background: '#7c21a6'
+      item-group-heading-text-color: '#bb86fc'
+      item-group-heading-text-color-hover: '#00ff88'
+      item-shadow: '1px 1px 6px #0a000ecc'
+      item-hover-shadow: 0 0 15px rgba(0, 255, 136, 0.25), 0 0 30px rgba(156, 39, 176, 0.15)
+      item-group-shadow: 'inset 0 2px 1px rgba(187, 134, 252, 0.3), 1px 1px 4px #000000cc'
+      heading-text-color: '#bb86fc'
+      nav-link-text-color: '#bb86fc'
+      nav-link-text-color-hover: '#00ff88'
+      nav-link-background-color: '#0f051a'
+      nav-link-background-color-hover: '#1a0a2e'
+      nav-link-border-color: '#2a1040'
+      nav-link-border-color-hover: '#00ff88'
+      nav-link-shadow: '1px 1px 3px #000'
+      nav-link-shadow-hover: 0 0 12px rgba(0, 255, 136, 0.35)
+      search-container-background: '#0f051a'
+      search-field-background: '#0a000e'
+      search-label-color: '#bb86fc'
+      settings-text-color: '#bb86fc'
+      settings-background: '#0a000e'
+      config-settings-color: '#bb86fc'
+      config-settings-background: '#0f051a'
+      interactive-editor-color: '#bb86fc'
+      interactive-editor-background: '#0a000e'
+      interactive-editor-background-darker: '#0f051a'
+      widget-text-color: '#bb86fc'
+      widget-background-color: '#0f051a'
+      widget-accent-color: '#0a000e'
+      scroll-bar-color: '#7c21a6'
+      scroll-bar-background: '#0a000e'
+      status-check-tooltip-background: '#0f051a'
+      description-tooltip-background: '#0f051a'
+      footer-background: '#0f051a'
+      login-form-background: '#0f051a'
+      welcome-popup-background: '#7c21a6'
+      welcome-popup-text-color: '#e0d0f0'
+      info: '#00b0ff'
+      success: '#00ff88'
+      warning: '#ff6a00'
+      danger: '#ff1744'
+      neutral: '#1a0a2e'
+      curve-factor: 2px
+  defaultOpeningMethod: newtab
+  faviconApi: allesedv
+  routingMode: history
+  enableMultiTasking: false
+  widgetsAlwaysUseProxy: false
+  enableMaterialDesignIcons: true
+  auth:
+    enableGuestAccess: false
+    users: []
+    enableOidc: false
+    oidc:
+      adminRole: 'false'
+      adminGroup: 'false'
+    enableHeaderAuth: false
+    headerAuth:
+      userHeader: REMOTE_USER
+      proxyWhitelist: []
+    enableKeycloak: false
+  showSplashScreen: false
+  preventWriteToDisk: false
+  preventLocalSave: false
+  disableConfiguration: false
+  disableConfigurationForNonAdmin: false
+  allowConfigEdit: true
+  enableServiceWorker: false
+  disableContextMenu: false
+  disableUpdateChecks: false
+  disableSmartSort: false
+  enableErrorReporting: false
+sections:
+  - name: SYNAPSE // Overview
+    icon: fas fa-satellite-dish
+    displayData:
+      collapsed: false
+      cols: 2
+    widgets:
+      - type: clock
+        options:
+          timeZone: America/Chicago
+          format: en-US
+          hideDate: false
+        id: 0_1560_clock
+      - type: gl-uptime
+        options:
+          hostname: https://glances.subcult.tv
+          apiVersion: 4
+        id: 1_1560_gluptime
+      - type: public-ip
+        useProxy: true
+        id: 2_1560_publicip
+      - type: gl-system-load
+        options:
+          hostname: https://glances.subcult.tv
+          apiVersion: 4
+        id: 3_1560_glsystemload
+  - name: SYNAPSE // CPU & Memory
+    icon: fas fa-microchip
+    displayData:
+      collapsed: false
+      cols: 2
+    widgets:
+      - type: gl-current-cpu
+        options:
+          hostname: https://glances.subcult.tv
+          apiVersion: 4
+        id: 0_1672_glcurrentcpu
+      - type: gl-current-mem
+        options:
+          hostname: https://glances.subcult.tv
+          apiVersion: 4
+        id: 1_1672_glcurrentmem
+      - type: gl-cpu-history
+        options:
+          hostname: https://glances.subcult.tv
+          apiVersion: 4
+          limit: 300
+        id: 2_1672_glcpuhistory
+      - type: gl-mem-history
+        options:
+          hostname: https://glances.subcult.tv
+          apiVersion: 4
+          limit: 300
+        id: 3_1672_glmemhistory
+  - name: SYNAPSE // Network & Temp
+    icon: fas fa-network-wired
+    displayData:
+      collapsed: false
+      cols: 2
+    widgets:
+      - type: gl-network-interfaces
+        options:
+          hostname: https://glances.subcult.tv
+          apiVersion: 4
+        id: 0_1959_glnetworkinterfaces
+      - type: gl-cpu-temp
+        options:
+          hostname: https://glances.subcult.tv
+          apiVersion: 4
+        id: 1_1959_glcputemp
+  - name: SYNAPSE // Service Status
+    icon: fas fa-heartbeat
+    displayData:
+      collapsed: false
+      cols: 1
+    widgets:
+      - type: iframe
+        options:
+          url: https://uptime.subcult.tv/status/essentials
+          frameHeight: 250
+        id: 0_2102_iframe
+  - name: MAGI-01 // Media
+    icon: fas fa-play-circle
+    displayData:
+      collapsed: false
+      cols: 3
+    items:
+      - title: Plex
+        url: https://plex.subcult.tv
+        icon: hl-plex
+        description: Media Server
+        statusCheck: true
+        statusCheckUrl: http://10.0.0.200:32400/identity
+        id: 0_1066_plex
+      - title: Seerr
+        url: https://seerr.subcult.tv
+        icon: hl-overseerr
+        description: Media Requests
+        statusCheck: true
+        id: 1_1066_seerr
+      - title: Radarr
+        url: https://radarr.subcult.tv
+        icon: hl-radarr
+        description: Movies
+        statusCheck: true
+        id: 2_1066_radarr
+      - title: Sonarr
+        url: https://sonarr.subcult.tv
+        icon: hl-sonarr
+        description: Series
+        statusCheck: true
+        id: 3_1066_sonarr
+      - title: Lidarr
+        url: https://lidarr.subcult.tv
+        icon: hl-lidarr
+        description: Music
+        statusCheck: true
+        id: 4_1066_lidarr
+      - title: Prowlarr
+        url: https://prowlarr.subcult.tv
+        icon: hl-prowlarr
+        description: Indexers
+        statusCheck: true
+        id: 5_1066_prowlarr
+      - title: Bazarr
+        url: https://bazarr.subcult.tv
+        icon: hl-bazarr
+        description: Subtitles
+        statusCheck: true
+        id: 6_1066_bazarr
+      - title: qBittorrent
+        url: https://qbit.subcult.tv
+        icon: hl-qbittorrent
+        description: Downloads
+        statusCheck: true
+        id: 7_1066_qbittorrent
+  - name: MAGI-02 // Cloud
+    icon: fas fa-cloud
+    displayData:
+      collapsed: false
+      cols: 3
+    items:
+      - title: Nextcloud
+        url: https://nextcloud.subcult.tv
+        icon: hl-nextcloud
+        description: Files & Cloud
+        statusCheck: true
+        id: 0_1090_nextcloud
+      - title: Immich
+        url: https://immich.subcult.tv
+        icon: hl-immich
+        description: Photos
+        statusCheck: true
+        id: 1_1090_immich
+      - title: Syncthing
+        url: https://sync.subcult.tv
+        icon: hl-syncthing
+        description: File Sync
+        statusCheck: true
+        id: 2_1090_syncthing
+      - title: Calibre
+        url: https://calibre.subcult.tv
+        icon: hl-calibre
+        description: Library Manager
+        statusCheck: true
+        id: 3_1090_calibre
+      - title: Calibre-Web
+        url: https://books.subcult.tv
+        icon: hl-calibre-web
+        description: eBook Reader
+        statusCheck: true
+        id: 4_1090_calibreweb
+      - title: Obsidian Sync
+        url: https://obsidian.subcult.tv
+        icon: si-obsidian
+        description: CouchDB LiveSync
+        statusCheck: true
+        id: 5_1090_obsidiansync
+  - name: MAGI-03 // Operations
+    icon: fas fa-server
+    displayData:
+      collapsed: false
+      cols: 3
+    items:
+      - title: Portainer
+        url: https://portainer.subcult.tv
+        icon: hl-portainer
+        description: Containers
+        statusCheck: true
+        id: 0_1648_portainer
+      - title: Grafana
+        url: https://grafana.subcult.tv
+        icon: hl-grafana
+        description: Dashboards
+        statusCheck: true
+        id: 1_1648_grafana
+      - title: Prometheus
+        url: https://prometheus.subcult.tv
+        icon: hl-prometheus
+        description: Metrics
+        statusCheck: true
+        id: 2_1648_prometheus
+      - title: Uptime Kuma
+        url: https://uptime.subcult.tv
+        icon: hl-uptime-kuma
+        description: Uptime Monitor
+        statusCheck: true
+        id: 3_1648_uptimekuma
+      - title: Glances
+        url: https://glances.subcult.tv
+        icon: fas fa-tachometer-alt
+        description: System Monitor
+        statusCheck: true
+        id: 4_1648_glances
+      - title: Speedtest
+        url: https://speedtest.subcult.tv
+        icon: hl-speedtest-tracker
+        description: ISP Speed
+        statusCheck: true
+        id: 5_1648_speedtest
+      - title: Vaultwarden
+        url: https://vault.subcult.tv
+        icon: hl-vaultwarden
+        description: Passwords
+        statusCheck: true
+        id: 6_1648_vaultwarden
+  - name: Terminal // Dev
+    icon: fas fa-terminal
+    displayData:
+      collapsed: false
+      cols: 4
+    items:
+      - title: Gitea
+        url: https://git.subcult.tv
+        icon: hl-gitea
+        description: Git Repos
+        statusCheck: true
+        id: 0_1273_gitea
+      - title: Open WebUI
+        url: https://ollama.subcult.tv
+        icon: hl-open-webui
+        description: Local LLMs
+        statusCheck: true
+        id: 1_1273_openwebui
+      - title: n8n
+        url: https://n8n.subcult.tv
+        icon: hl-n8n
+        description: Workflows
+        statusCheck: true
+        id: 2_1273_nn
+      - title: pgAdmin
+        url: https://pgadmin.subcult.tv
+        icon: hl-pgadmin
+        description: Databases
+        statusCheck: true
+        id: 3_1273_pgadmin
+      - title: MinIO
+        url: https://s3.subcult.tv
+        icon: hl-minio
+        description: Object Storage
+        statusCheck: true
+        id: 4_1273_minio
+      - title: Umami
+        url: https://analytics.subcult.tv
+        icon: hl-umami
+        description: Analytics
+        statusCheck: true
+        id: 5_1273_umami
+      - title: Mailpit
+        url: https://mail.subcult.tv
+        icon: fas fa-envelope
+        description: Mail Testing
+        statusCheck: true
+        id: 6_1273_mailpit
+      - title: Registry
+        url: https://registry.subcult.tv
+        icon: hl-docker-moby
+        description: Docker Registry
+        statusCheck: true
+        id: 7_1273_registry
+  - name: Archive // Knowledge
+    icon: fas fa-archive
+    displayData:
+      collapsed: false
+      cols: 3
+    items:
+      - title: Linkwarden
+        url: https://links.subcult.tv
+        icon: hl-linkwarden
+        description: Bookmarks
+        statusCheck: true
+        id: 0_1792_linkwarden
+      - title: FreshRSS
+        url: https://rss.subcult.tv
+        icon: hl-freshrss
+        description: RSS Feeds
+        statusCheck: true
+        id: 1_1792_freshrss
+      - title: Wallabag
+        url: https://read.subcult.tv
+        icon: hl-wallabag
+        description: Read Later
+        statusCheck: true
+        id: 2_1792_wallabag
+      - title: ArchiveBox
+        url: https://archive.subcult.tv
+        icon: hl-archivebox
+        description: Web Archive
+        statusCheck: true
+        id: 3_1792_archivebox
+      - title: Ghost
+        url: https://cms.subcult.tv
+        icon: hl-ghost
+        description: Publishing
+        statusCheck: true
+        id: 4_1792_ghost
+      - title: Vikunja
+        url: https://tasks.subcult.tv
+        icon: hl-vikunja
+        description: Tasks & Projects
+        statusCheck: true
+        id: 5_1792_vikunja
+  - name: Vitals // Life
+    icon: fas fa-heartbeat
+    displayData:
+      collapsed: false
+      cols: 3
+    items:
+      - title: Actual Budget
+        url: https://budget.subcult.tv
+        icon: hl-actual
+        description: Finance
+        statusCheck: true
+        id: 0_1169_actualbudget
+      - title: Mealie
+        url: https://meals.subcult.tv
+        icon: hl-mealie
+        description: Meal Planning
+        statusCheck: true
+        id: 1_1169_mealie
+      - title: Fasten
+        url: https://health.subcult.tv
+        icon: fas fa-notes-medical
+        description: Health Records
+        statusCheck: true
+        id: 2_1169_fasten
+      - title: Homebox
+        url: https://inventory.subcult.tv
+        icon: hl-homebox
+        description: Home Inventory
+        statusCheck: true
+        id: 3_1169_homebox
+  - name: External // Links
+    icon: fas fa-external-link-alt
+    displayData:
+      collapsed: true
+      cols: 4
+    items:
+      - title: GitHub
+        url: https://github.com/subculture-collective
+        icon: si-github
+        description: Subculture Collective
+        id: 0_1506_github
+      - title: Plex.tv
+        url: https://app.plex.tv
+        icon: hl-plex
+        description: Remote Streaming
+        id: 1_1506_plextv
+      - title: Cloudflare
+        url: https://dash.cloudflare.com
+        icon: si-cloudflare
+        description: DNS & CDN
+        id: 2_1506_cloudflare
+      - title: Proton Mail
+        url: https://mail.proton.me
+        icon: si-protonmail
+        description: Email
+        id: 3_1506_protonmail

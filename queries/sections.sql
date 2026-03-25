@@ -17,3 +17,6 @@ RETURNING *;
 
 -- name: DeleteSection :exec
 DELETE FROM sections WHERE id = $1;
+
+-- name: GetSectionByName :one
+SELECT * FROM sections WHERE name = $1;

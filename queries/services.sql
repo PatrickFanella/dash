@@ -19,6 +19,9 @@ RETURNING *;
 -- name: DeleteService :exec
 DELETE FROM services WHERE id = $1;
 
+-- name: GetServiceByURL :one
+SELECT * FROM services WHERE url = $1;
+
 -- name: ListServicesBySection :many
 SELECT s.*
 FROM services s

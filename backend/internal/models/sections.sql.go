@@ -80,6 +80,27 @@ func (q *Queries) GetSection(ctx context.Context, id pgtype.UUID) (Section, erro
 	return i, err
 }
 
+const getSectionByName = `-- name: GetSectionByName :one
+SELECT id, name, icon, cols, collapsed, sort_order, section_type, created_at, updated_at FROM sections WHERE name = $1
+`
+
+func (q *Queries) GetSectionByName(ctx context.Context, name string) (Section, error) {
+	row := q.db.QueryRow(ctx, getSectionByName, name)
+	var i Section
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Icon,
+		&i.Cols,
+		&i.Collapsed,
+		&i.SortOrder,
+		&i.SectionType,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listSections = `-- name: ListSections :many
 SELECT id, name, icon, cols, collapsed, sort_order, section_type, created_at, updated_at FROM sections ORDER BY sort_order ASC
 `

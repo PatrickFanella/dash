@@ -40,6 +40,7 @@ func NewRouter(queries *models.Queries, pool *pgxpool.Pool) chi.Router {
 		r.Get("/ping", handlePing)
 		r.Mount("/sections", sectionHandler.Routes())
 		r.Mount("/services", serviceHandler.Routes())
+		r.Post("/import", handleImport(pool))
 	})
 
 	return r

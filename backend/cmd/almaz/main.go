@@ -14,6 +14,7 @@ import (
 	"github.com/patrickfanella/dash/backend/internal/api"
 	"github.com/patrickfanella/dash/backend/internal/config"
 	"github.com/patrickfanella/dash/backend/internal/database"
+	"github.com/patrickfanella/dash/backend/internal/importer"
 	"github.com/patrickfanella/dash/backend/internal/models"
 )
 
@@ -22,8 +23,11 @@ func main() {
 		os.Exit(runHealthcheck())
 	}
 	if len(os.Args) > 1 && os.Args[1] == "seed" {
-		// Handled in importer package (future issue).
-		log.Fatal("seed command not yet implemented")
+		configPath := "/opt/server/management/config/dashy/conf.yml"
+		if len(os.Args) > 3 && os.Args[2] == "--config" {
+			configPath = os.Args[3]
+		}
+		os.Exit(runSeed(configPath))
 	}
 
 	cfg, err := config.Load()
@@ -79,6 +83,44 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("shutdown: %v", err)
 	}
+}
+
+func runSeed(configPath string) int {
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		fmt.Fprintln(os.Stderr, "DATABASE_URL is required")
+		return 1
+	}
+
+	if err := database.RunMigrations(dbURL, "migrations"); err != nil {
+		fmt.Fprintf(os.Stderr, "migrations: %v\n", err)
+		return 1
+	}
+
+	ctx := context.Background()
+	pool, err := database.Connect(ctx, dbURL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "database: %v\n", err)
+		return 1
+	}
+	defer pool.Close()
+
+	cfg, err := importer.ParseFile(configPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "parse config: %v\n", err)
+		return 1
+	}
+
+	result, err := importer.Run(ctx, pool, cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "import: %v\n", err)
+		return 1
+	}
+
+	fmt.Printf("Import complete: %d sections created, %d updated; %d services created, %d updated\n",
+		result.SectionsCreated, result.SectionsUpdated,
+		result.ServicesCreated, result.ServicesUpdated)
+	return 0
 }
 
 func runHealthcheck() int {

@@ -84,6 +84,28 @@ func (q *Queries) GetService(ctx context.Context, id pgtype.UUID) (Service, erro
 	return i, err
 }
 
+const getServiceByURL = `-- name: GetServiceByURL :one
+SELECT id, title, url, description, icon, status_check, status_check_url, sort_order, created_at, updated_at FROM services WHERE url = $1
+`
+
+func (q *Queries) GetServiceByURL(ctx context.Context, url string) (Service, error) {
+	row := q.db.QueryRow(ctx, getServiceByURL, url)
+	var i Service
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Url,
+		&i.Description,
+		&i.Icon,
+		&i.StatusCheck,
+		&i.StatusCheckUrl,
+		&i.SortOrder,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listServices = `-- name: ListServices :many
 SELECT id, title, url, description, icon, status_check, status_check_url, sort_order, created_at, updated_at FROM services ORDER BY sort_order ASC
 `
