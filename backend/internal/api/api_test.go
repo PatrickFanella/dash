@@ -432,6 +432,87 @@ func TestNestedFalseReturnsNoServices(t *testing.T) {
 	}
 }
 
+// ---------------------------------------------------------------------------
+// Error path tests — sections
+// ---------------------------------------------------------------------------
+
+func TestCreateSectionInvalidJSON(t *testing.T) {
+	w := doRequest("POST", "/api/v1/sections", `{not json`)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", w.Code)
+	}
+}
+
+func TestGetSectionInvalidUUID(t *testing.T) {
+	w := doRequest("GET", "/api/v1/sections/not-a-uuid", "")
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestUpdateSectionNotFound(t *testing.T) {
+	truncateTables(t)
+	w := doRequest("PUT", "/api/v1/sections/00000000-0000-0000-0000-000000000000",
+		`{"name":"Ghost","cols":3}`)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", w.Code)
+	}
+}
+
+func TestDeleteSectionNotFound(t *testing.T) {
+	truncateTables(t)
+	w := doRequest("DELETE", "/api/v1/sections/00000000-0000-0000-0000-000000000000", "")
+	// DELETE of non-existent row is a no-op in SQL — verify behavior
+	if w.Code != http.StatusNoContent && w.Code != http.StatusNotFound {
+		t.Fatalf("expected 204 or 404, got %d", w.Code)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Error path tests — services
+// ---------------------------------------------------------------------------
+
+func TestCreateServiceInvalidJSON(t *testing.T) {
+	w := doRequest("POST", "/api/v1/services", `{not json`)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", w.Code)
+	}
+}
+
+func TestGetServiceInvalidUUID(t *testing.T) {
+	w := doRequest("GET", "/api/v1/services/not-a-uuid", "")
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestGetServiceNotFound(t *testing.T) {
+	truncateTables(t)
+	w := doRequest("GET", "/api/v1/services/00000000-0000-0000-0000-000000000000", "")
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", w.Code)
+	}
+}
+
+func TestUpdateServiceNotFound(t *testing.T) {
+	truncateTables(t)
+	w := doRequest("PUT", "/api/v1/services/00000000-0000-0000-0000-000000000000",
+		`{"title":"Ghost","url":"https://ghost.example.com"}`)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", w.Code)
+	}
+}
+
+func TestCreateServiceInvalidSectionID(t *testing.T) {
+	truncateTables(t)
+	w := doRequest("POST", "/api/v1/services",
+		`{"title":"Test","url":"https://test.example.com","section_ids":["00000000-0000-0000-0000-000000000000"]}`)
+	// FK violation — should return 500
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500 for invalid section_id FK, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
 func formatUUID(b [16]byte) string {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
 		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])

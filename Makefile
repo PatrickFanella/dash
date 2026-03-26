@@ -67,8 +67,8 @@ sqlc: ## Regenerate sqlc code
 # Testing
 # ---------------------------------------------------------------------------
 
-test: ## Run all Go tests
-	cd backend && go test ./...
+test: ## Run all Go tests (sequential packages — shared test DB)
+	cd backend && go test -p 1 ./...
 
 # ---------------------------------------------------------------------------
 # Cleanup
