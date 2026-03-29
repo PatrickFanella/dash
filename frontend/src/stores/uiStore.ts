@@ -16,7 +16,6 @@ interface UIStoreState {
   collapsedSections: Set<string>
   knownSections: Set<string>
   toggleSection: (id: string) => void
-  isCollapsed: (id: string) => boolean
   initializeSections: (sections: SectionDefault[]) => void
 }
 
@@ -75,7 +74,6 @@ export const useUIStore = create<UIStoreState>((set, get) => ({
       persistState(collapsedSections, knownSections)
       return { collapsedSections, knownSections }
     }),
-  isCollapsed: (id) => get().collapsedSections.has(id),
   initializeSections: (sections) =>
     set((state) => {
       const collapsedSections = new Set(state.collapsedSections)
@@ -101,3 +99,7 @@ export const useUIStore = create<UIStoreState>((set, get) => ({
       return { collapsedSections, knownSections }
     }),
 }))
+
+export function useIsCollapsed(id: string): boolean {
+  return useUIStore((state) => state.collapsedSections.has(id))
+}
