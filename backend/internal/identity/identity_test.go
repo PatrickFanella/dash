@@ -1,94 +1,148 @@
 package identity
 
 import (
+	"context"
 	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 )
 
-func TestParseHeaders_NoHeadersReturnsNil(t *testing.T) {
-	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
-	if err != nil {
-		t.Fatalf("NewRequest: %v", err)
+func TestParseHeadersAllFields(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	r.Header.Set("Remote-User", "patrick")
+	r.Header.Set("Remote-Name", "Patrick Fanella")
+	r.Header.Set("Remote-Email", "patrick@example.com")
+	r.Header.Set("Remote-Groups", "admins, users")
+
+	id := ParseHeaders(r)
+	if id == nil {
+		t.Fatal("expected identity, got nil")
+	}
+	if id.Username != "patrick" {
+		t.Errorf("expected username patrick, got %s", id.Username)
+	}
+	if id.DisplayName != "Patrick Fanella" {
+		t.Errorf("expected display_name Patrick Fanella, got %s", id.DisplayName)
+	}
+	if id.Email != "patrick@example.com" {
+		t.Errorf("expected email patrick@example.com, got %s", id.Email)
 	}
 
-	got := ParseHeaders(req)
-	if got != nil {
-		t.Fatalf("ParseHeaders() = %+v, want nil", got)
+	wantGroups := []string{"admins", "users"}
+	if !reflect.DeepEqual(id.Groups, wantGroups) {
+		t.Errorf("expected groups %v, got %v", wantGroups, id.Groups)
 	}
 }
 
-func TestParseHeaders_AllHeaders(t *testing.T) {
-	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
-	if err != nil {
-		t.Fatalf("NewRequest: %v", err)
-	}
-	req.Header.Set("Remote-User", "alice")
-	req.Header.Set("Remote-Name", "Alice Smith")
-	req.Header.Set("Remote-Email", "alice@example.com")
-	req.Header.Set("Remote-Groups", "admins, devs,team-a")
+func TestParseHeadersNoHeaders(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	got := ParseHeaders(req)
-	if got == nil {
-		t.Fatal("ParseHeaders() = nil, want identity")
-	}
-
-	if got.Username != "alice" {
-		t.Errorf("Username = %q, want %q", got.Username, "alice")
-	}
-	if got.DisplayName != "Alice Smith" {
-		t.Errorf("DisplayName = %q, want %q", got.DisplayName, "Alice Smith")
-	}
-	if got.Email != "alice@example.com" {
-		t.Errorf("Email = %q, want %q", got.Email, "alice@example.com")
-	}
-
-	wantGroups := []string{"admins", "devs", "team-a"}
-	if !reflect.DeepEqual(got.Groups, wantGroups) {
-		t.Errorf("Groups = %#v, want %#v", got.Groups, wantGroups)
+	id := ParseHeaders(r)
+	if id != nil {
+		t.Errorf("expected nil for no headers, got %+v", id)
 	}
 }
 
-func TestParseHeaders_PartialHeaders(t *testing.T) {
-	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
-	if err != nil {
-		t.Fatalf("NewRequest: %v", err)
-	}
-	req.Header.Set("Remote-Email", "bob@example.com")
-
-	got := ParseHeaders(req)
-	if got == nil {
-		t.Fatal("ParseHeaders() = nil, want identity")
-	}
-
-	if got.Username != "" {
-		t.Errorf("Username = %q, want empty", got.Username)
-	}
-	if got.DisplayName != "" {
-		t.Errorf("DisplayName = %q, want empty", got.DisplayName)
-	}
-	if got.Email != "bob@example.com" {
-		t.Errorf("Email = %q, want %q", got.Email, "bob@example.com")
-	}
-	if got.Groups != nil {
-		t.Errorf("Groups = %#v, want nil", got.Groups)
+func TestParseHeadersNilRequest(t *testing.T) {
+	id := ParseHeaders(nil)
+	if id != nil {
+		t.Errorf("expected nil for nil request, got %+v", id)
 	}
 }
 
-func TestParseHeaders_GroupsFiltersEmptyValues(t *testing.T) {
-	req, err := http.NewRequest(http.MethodGet, "http://example.com", nil)
-	if err != nil {
-		t.Fatalf("NewRequest: %v", err)
-	}
-	req.Header.Set("Remote-Groups", " admins, ,devs,,  ")
+func TestParseHeadersPartialHeaders(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	r.Header.Set("Remote-Email", "bob@example.com")
 
-	got := ParseHeaders(req)
-	if got == nil {
-		t.Fatal("ParseHeaders() = nil, want identity")
+	id := ParseHeaders(r)
+	if id == nil {
+		t.Fatal("expected identity, got nil")
+	}
+	if id.Username != "" {
+		t.Errorf("expected empty username, got %s", id.Username)
+	}
+	if id.DisplayName != "" {
+		t.Errorf("expected empty display_name, got %s", id.DisplayName)
+	}
+	if id.Email != "bob@example.com" {
+		t.Errorf("expected email bob@example.com, got %s", id.Email)
+	}
+	if id.Groups != nil {
+		t.Errorf("expected nil groups, got %v", id.Groups)
+	}
+}
+
+func TestParseHeadersSingleGroup(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	r.Header.Set("Remote-User", "patrick")
+	r.Header.Set("Remote-Groups", "admins")
+
+	id := ParseHeaders(r)
+	if id == nil {
+		t.Fatal("expected identity, got nil")
+	}
+	if len(id.Groups) != 1 || id.Groups[0] != "admins" {
+		t.Errorf("expected groups [admins], got %v", id.Groups)
+	}
+}
+
+func TestParseHeadersGroupsFiltersEmptyValues(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	r.Header.Set("Remote-Groups", " admins, ,devs,,  ")
+
+	id := ParseHeaders(r)
+	if id == nil {
+		t.Fatal("expected identity, got nil")
 	}
 
 	wantGroups := []string{"admins", "devs"}
-	if !reflect.DeepEqual(got.Groups, wantGroups) {
-		t.Errorf("Groups = %#v, want %#v", got.Groups, wantGroups)
+	if !reflect.DeepEqual(id.Groups, wantGroups) {
+		t.Errorf("expected groups %v, got %v", wantGroups, id.Groups)
+	}
+}
+
+func TestMiddlewareSetsContext(t *testing.T) {
+	var captured *Identity
+	handler := Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		captured = FromContext(r.Context())
+	}))
+
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	r.Header.Set("Remote-User", "patrick")
+	r.Header.Set("Remote-Name", "Patrick Fanella")
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, r)
+
+	if captured == nil {
+		t.Fatal("expected identity in context, got nil")
+	}
+	if captured.Username != "patrick" {
+		t.Errorf("expected username patrick, got %s", captured.Username)
+	}
+}
+
+func TestMiddlewareNoHeadersPassesThrough(t *testing.T) {
+	called := false
+	handler := Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+		if FromContext(r.Context()) != nil {
+			t.Error("expected nil identity for unauthenticated request")
+		}
+	}))
+
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, r)
+
+	if !called {
+		t.Error("expected next handler to be called")
+	}
+}
+
+func TestFromContextEmptyContext(t *testing.T) {
+	id := FromContext(context.Background())
+	if id != nil {
+		t.Errorf("expected nil from empty context, got %+v", id)
 	}
 }

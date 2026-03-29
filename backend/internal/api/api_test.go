@@ -513,6 +513,73 @@ func TestCreateServiceInvalidSectionID(t *testing.T) {
 	}
 }
 
+// ---------------------------------------------------------------------------
+// Whoami tests (#113)
+// ---------------------------------------------------------------------------
+
+func doRequestWithHeaders(method, path string, body string, headers map[string]string) *httptest.ResponseRecorder {
+	var reader *strings.Reader
+	if body != "" {
+		reader = strings.NewReader(body)
+	} else {
+		reader = strings.NewReader("")
+	}
+	req := httptest.NewRequest(method, path, reader)
+	req.Header.Set("Content-Type", "application/json")
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	w := httptest.NewRecorder()
+	testRouter.ServeHTTP(w, req)
+	return w
+}
+
+func TestWhoamiAuthenticated(t *testing.T) {
+	w := doRequestWithHeaders("GET", "/api/v1/whoami", "", map[string]string{
+		"Remote-User":   "patrick",
+		"Remote-Name":   "Patrick Fanella",
+		"Remote-Email":  "patrick@example.com",
+		"Remote-Groups": "admins,users",
+	})
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp struct {
+		Username    string   `json:"username"`
+		DisplayName string   `json:"display_name"`
+		Email       string   `json:"email"`
+		Groups      []string `json:"groups"`
+	}
+	decodeJSON(t, w, &resp)
+
+	if resp.Username != "patrick" {
+		t.Errorf("expected username patrick, got %s", resp.Username)
+	}
+	if resp.DisplayName != "Patrick Fanella" {
+		t.Errorf("expected display_name Patrick Fanella, got %s", resp.DisplayName)
+	}
+	if resp.Email != "patrick@example.com" {
+		t.Errorf("expected email patrick@example.com, got %s", resp.Email)
+	}
+	if len(resp.Groups) != 2 || resp.Groups[0] != "admins" || resp.Groups[1] != "users" {
+		t.Errorf("expected groups [admins users], got %v", resp.Groups)
+	}
+}
+
+func TestWhoamiUnauthenticated(t *testing.T) {
+	w := doRequest("GET", "/api/v1/whoami", "")
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("expected 401, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]string
+	decodeJSON(t, w, &resp)
+	if resp["error"] != "not authenticated" {
+		t.Errorf("expected error 'not authenticated', got %s", resp["error"])
+	}
+}
+
 func formatUUID(b [16]byte) string {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
 		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])

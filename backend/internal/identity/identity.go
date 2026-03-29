@@ -5,16 +5,16 @@ import (
 	"strings"
 )
 
-// Identity represents authenticated user information from Authelia forwarded headers.
+// Identity represents an authenticated user parsed from Authelia forwarded headers.
 type Identity struct {
-	Username    string
-	DisplayName string
-	Email       string
-	Groups      []string
+	Username    string   `json:"username"`
+	DisplayName string   `json:"display_name"`
+	Email       string   `json:"email"`
+	Groups      []string `json:"groups"`
 }
 
-// ParseHeaders extracts identity fields from Authelia forwarded headers.
-// It returns nil when no identity headers are present.
+// ParseHeaders reads Authelia forwarded headers from the request and returns
+// an Identity. Returns nil if no identity headers are present.
 func ParseHeaders(r *http.Request) *Identity {
 	if r == nil {
 		return nil

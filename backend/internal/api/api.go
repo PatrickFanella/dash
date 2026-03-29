@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/patrickfanella/dash/backend/internal/identity"
 	"github.com/patrickfanella/dash/backend/internal/models"
 	"github.com/patrickfanella/dash/backend/internal/services"
 )
@@ -28,6 +29,7 @@ func NewRouter(queries *models.Queries, pool *pgxpool.Pool) chi.Router {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
+	r.Use(identity.Middleware)
 
 	sectionSvc := services.NewSectionService(queries)
 	sectionHandler := NewSectionHandler(sectionSvc, queries)
@@ -38,6 +40,7 @@ func NewRouter(queries *models.Queries, pool *pgxpool.Pool) chi.Router {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Use(jsonContentType)
 		r.Get("/ping", handlePing)
+		r.Get("/whoami", handleWhoami)
 		r.Mount("/sections", sectionHandler.Routes())
 		r.Mount("/services", serviceHandler.Routes())
 		r.Post("/import", handleImport(pool))
