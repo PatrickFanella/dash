@@ -14,7 +14,15 @@ export async function fetchJSON<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`, options);
+  const headers = new Headers(options?.headers);
+  if (options?.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  const response = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
 
   if (!response.ok) {
     let message = response.statusText;

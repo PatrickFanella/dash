@@ -7,6 +7,12 @@ export interface Service {
   status_check: boolean;
   status_check_url: string | null;
   sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServiceWithSections extends Service {
+  section_ids: string[];
 }
 
 export interface Section {
@@ -17,5 +23,10 @@ export interface Section {
   collapsed: boolean;
   sort_order: number;
   section_type: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NestedSection extends Section {
   services: Service[];
 }
