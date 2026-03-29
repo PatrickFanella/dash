@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Identity represents authenticated user information from Authelia forwarded headers.
 type Identity struct {
 	Username    string
 	DisplayName string
@@ -12,6 +13,8 @@ type Identity struct {
 	Groups      []string
 }
 
+// ParseHeaders extracts identity fields from Authelia forwarded headers.
+// It returns nil when no identity headers are present.
 func ParseHeaders(r *http.Request) *Identity {
 	if r == nil {
 		return nil
