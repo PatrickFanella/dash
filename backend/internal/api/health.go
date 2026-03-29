@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/patrickfanella/dash/backend/internal/health"
@@ -22,6 +23,7 @@ func (h *HealthHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Get("/", h.list)
 	r.Get("/{serviceId}", h.get)
+	r.Get("/{serviceId}/incidents", h.incidents)
 	return r
 }
 
@@ -74,5 +76,37 @@ func (h *HealthHandler) get(w http.ResponseWriter, r *http.Request) {
 		ServiceHealth: *sh,
 		Stale:         stale,
 		LastUpdated:   lastUpdated.UTC().Format("2006-01-02T15:04:05Z"),
+	})
+}
+
+func (h *HealthHandler) incidents(w http.ResponseWriter, r *http.Request) {
+	svc, err := h.servicesSvc.Get(r.Context(), chi.URLParam(r, "serviceId"))
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	monitorID := h.matcher.FindMonitorID(svc)
+	if monitorID < 0 {
+		writeError(w, http.StatusNotFound, "no monitor mapped to this service")
+		return
+	}
+
+	limit := 10
+	if l := r.URL.Query().Get("limit"); l != "" {
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+
+	beats := h.cache.GetHeartbeats(monitorID)
+	incidents := health.DeriveIncidents(beats, limit)
+	if incidents == nil {
+		incidents = []health.Incident{}
+	}
+
+	writeJSON(w, http.StatusOK, health.IncidentResponse{
+		ServiceID: svc.ID,
+		Incidents: incidents,
 	})
 }

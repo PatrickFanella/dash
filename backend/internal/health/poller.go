@@ -10,7 +10,7 @@ import (
 // given interval and updates the cache. It fetches immediately on start.
 func StartPoller(ctx context.Context, client *Client, cache *Cache, interval time.Duration) {
 	fetch := func() {
-		monitors, err := client.FetchMonitors(ctx)
+		monitors, rawBeats, err := client.FetchMonitors(ctx)
 		if err != nil {
 			log.Printf("[health] fetch monitors: %v", err)
 			return
@@ -21,6 +21,7 @@ func StartPoller(ctx context.Context, client *Client, cache *Cache, interval tim
 			names = make(map[int]string)
 		}
 		cache.Set(monitors, names)
+		cache.SetHeartbeats(rawBeats)
 		log.Printf("[health] updated cache: %d monitors", len(monitors))
 	}
 

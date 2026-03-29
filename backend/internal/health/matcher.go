@@ -77,6 +77,25 @@ func matchService(svc domain.Service, nameIndex map[string]monitorEntry) *Servic
 	return nil
 }
 
+// FindMonitorID returns the monitor ID for a service, or -1 if no match.
+func (m *Matcher) FindMonitorID(svc domain.Service) int {
+	monitors, names, _, _ := m.cache.Get()
+	nameIndex := buildNameIndex(monitors, names)
+
+	if svc.StatusCheckURL != nil && *svc.StatusCheckURL != "" {
+		key := strings.ToLower(strings.TrimSpace(*svc.StatusCheckURL))
+		if entry, ok := nameIndex[key]; ok {
+			return entry.monitor.ID
+		}
+	}
+
+	key := strings.ToLower(strings.TrimSpace(svc.Title))
+	if entry, ok := nameIndex[key]; ok {
+		return entry.monitor.ID
+	}
+	return -1
+}
+
 func toServiceHealth(serviceID string, mon Monitor) *ServiceHealth {
 	sh := &ServiceHealth{
 		ServiceID: serviceID,

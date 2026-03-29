@@ -32,3 +32,17 @@ type HealthSnapshot struct {
 	Stale       bool            `json:"stale"`
 	LastUpdated time.Time       `json:"last_updated"`
 }
+
+type Incident struct {
+	ID        string     `json:"id"`
+	Status    string     `json:"status"`
+	StartedAt time.Time  `json:"started_at"`
+	EndedAt   *time.Time `json:"ended_at"`
+	Duration  int64      `json:"duration_seconds"`
+	Message   string     `json:"message"`
+}
+
+type IncidentResponse struct {
+	ServiceID string     `json:"service_id"`
+	Incidents []Incident `json:"incidents"`
+}

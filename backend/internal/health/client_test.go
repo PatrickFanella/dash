@@ -28,7 +28,7 @@ func TestFetchMonitors(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(srv.URL, "default", 5*time.Second)
-	monitors, err := client.FetchMonitors(context.Background())
+	monitors, _, err := client.FetchMonitors(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -63,7 +63,7 @@ func TestFetchMonitorsHTTPError(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(srv.URL, "default", 5*time.Second)
-	_, err := client.FetchMonitors(context.Background())
+	_, _, err := client.FetchMonitors(context.Background())
 	if err == nil {
 		t.Fatal("expected error for HTTP 500")
 	}
@@ -76,7 +76,7 @@ func TestFetchMonitorsMalformedJSON(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(srv.URL, "default", 5*time.Second)
-	_, err := client.FetchMonitors(context.Background())
+	_, _, err := client.FetchMonitors(context.Background())
 	if err == nil {
 		t.Fatal("expected error for malformed JSON")
 	}
@@ -89,7 +89,7 @@ func TestFetchMonitorsEmptyList(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(srv.URL, "default", 5*time.Second)
-	monitors, err := client.FetchMonitors(context.Background())
+	monitors, _, err := client.FetchMonitors(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

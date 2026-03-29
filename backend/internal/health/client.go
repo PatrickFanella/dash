@@ -60,34 +60,37 @@ type publicGroupMonitor struct {
 }
 
 // FetchMonitors fetches current heartbeat data from the Uptime Kuma status page API.
-func (c *Client) FetchMonitors(ctx context.Context) ([]Monitor, error) {
+// Also returns raw heartbeat entries per monitor for incident derivation.
+func (c *Client) FetchMonitors(ctx context.Context) ([]Monitor, map[int][]heartbeatEntry, error) {
 	url := fmt.Sprintf("%s/api/status-page/heartbeat/%s", c.baseURL, c.slug)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
+		return nil, nil, fmt.Errorf("create request: %w", err)
 	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("fetch heartbeats: %w", err)
+		return nil, nil, fmt.Errorf("fetch heartbeats: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("uptime kuma returned status %d", resp.StatusCode)
+		return nil, nil, fmt.Errorf("uptime kuma returned status %d", resp.StatusCode)
 	}
 
 	var hb heartbeatResponse
 	if err := json.NewDecoder(resp.Body).Decode(&hb); err != nil {
-		return nil, fmt.Errorf("decode heartbeats: %w", err)
+		return nil, nil, fmt.Errorf("decode heartbeats: %w", err)
 	}
 
+	rawBeats := make(map[int][]heartbeatEntry)
 	monitors := make([]Monitor, 0, len(hb.HeartbeatList))
 	for idStr, beats := range hb.HeartbeatList {
 		if len(beats) == 0 {
 			continue
 		}
 		id, _ := strconv.Atoi(idStr)
+		rawBeats[id] = beats
 		latest := beats[len(beats)-1]
 
 		m := Monitor{
@@ -107,7 +110,7 @@ func (c *Client) FetchMonitors(ctx context.Context) ([]Monitor, error) {
 		monitors = append(monitors, m)
 	}
 
-	return monitors, nil
+	return monitors, rawBeats, nil
 }
 
 // FetchMonitorNames fetches monitor metadata (ID → name mapping) from the
