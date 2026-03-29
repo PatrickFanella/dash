@@ -4,6 +4,7 @@ import type { SectionDefault } from '../stores/uiStore'
 import { useSections } from '../hooks/useSections'
 import { useHealth, useHealthMap } from '../hooks/useHealth'
 import Section from '../components/layout/Section'
+import MetricsSummary from '../components/layout/MetricsSummary'
 import StaleDataBanner from '../components/layout/StaleDataBanner'
 
 export default function DashboardPage() {
@@ -50,6 +51,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-4">
       <h2 className="font-mono text-2xl font-semibold">Dashboard</h2>
+      <MetricsSummary />
       {healthSnapshot?.stale && (
         <StaleDataBanner lastUpdated={healthSnapshot.last_updated} />
       )}
