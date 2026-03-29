@@ -32,7 +32,7 @@ func NewRouter(queries *models.Queries, pool *pgxpool.Pool) chi.Router {
 	r.Use(identity.Middleware)
 
 	sectionSvc := services.NewSectionService(queries)
-	sectionHandler := NewSectionHandler(sectionSvc, queries)
+	sectionHandler := NewSectionHandler(sectionSvc)
 
 	serviceSvc := services.NewServiceService(queries, pool)
 	serviceHandler := NewServiceHandler(serviceSvc)

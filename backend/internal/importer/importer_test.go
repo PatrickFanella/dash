@@ -2,13 +2,12 @@ package importer
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/patrickfanella/dash/backend/internal/database"
 	"github.com/patrickfanella/dash/backend/internal/models"
+	"github.com/patrickfanella/dash/backend/internal/testutil"
 )
 
 var (
@@ -17,39 +16,21 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	dbURL := os.Getenv("TEST_DATABASE_URL")
-	if dbURL != "" {
-		if err := database.RunMigrations(dbURL, "../../../migrations"); err != nil {
-			fmt.Fprintf(os.Stderr, "migrations failed: %v\n", err)
-			os.Exit(1)
-		}
-		ctx := context.Background()
-		pool, err := database.Connect(ctx, dbURL)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "connect failed: %v\n", err)
-			os.Exit(1)
-		}
+	pool, queries := testutil.SetupPool("../../../migrations")
+	if pool != nil {
 		testPool = pool
-		testQueries = models.New(pool)
+		testQueries = queries
 		defer pool.Close()
 	}
 	os.Exit(m.Run())
 }
 
 func skipIfNoDB(t *testing.T) {
-	t.Helper()
-	if testPool == nil {
-		t.Skip("TEST_DATABASE_URL not set")
-	}
+	testutil.SkipIfNoDB(t, testPool)
 }
 
 func truncate(t *testing.T) {
-	t.Helper()
-	_, err := testPool.Exec(context.Background(),
-		"TRUNCATE service_section_mappings, services, sections CASCADE")
-	if err != nil {
-		t.Fatalf("truncate: %v", err)
-	}
+	testutil.TruncateAll(t, testPool)
 }
 
 func loadFixture(t *testing.T) *DashyConfig {
