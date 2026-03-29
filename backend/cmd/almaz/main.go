@@ -14,6 +14,7 @@ import (
 	"github.com/patrickfanella/dash/backend/internal/api"
 	"github.com/patrickfanella/dash/backend/internal/config"
 	"github.com/patrickfanella/dash/backend/internal/database"
+	"github.com/patrickfanella/dash/backend/internal/health"
 	"github.com/patrickfanella/dash/backend/internal/importer"
 	"github.com/patrickfanella/dash/backend/internal/models"
 )
@@ -47,7 +48,16 @@ func main() {
 	defer pool.Close()
 
 	queries := models.New(pool)
-	router := api.NewRouter(queries, pool)
+
+	// Health monitoring subsystem
+	healthClient := health.NewClient(cfg.UptimeKumaURL, cfg.UptimeKumaSlug, 10*time.Second)
+	healthCache := health.NewCache(cfg.HealthCacheTTL)
+	pollerCtx, pollerCancel := context.WithCancel(context.Background())
+	defer pollerCancel()
+	go health.StartPoller(pollerCtx, healthClient, healthCache, cfg.HealthPollInterval)
+	healthMatcher := health.NewMatcher(healthCache)
+
+	router := api.NewRouter(queries, pool, healthMatcher, healthCache)
 
 	// Mount the embedded frontend for all non-API routes.
 	distFS, err := fs.Sub(frontendFS, "dist")

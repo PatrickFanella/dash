@@ -1,4 +1,5 @@
 import type { NestedSection } from '../../api/types'
+import type { ServiceHealth } from '../../api/health'
 import { useIsCollapsed, useUIStore } from '../../stores/uiStore'
 import SectionHeader from './SectionHeader'
 import SectionGrid from './SectionGrid'
@@ -6,9 +7,10 @@ import ServiceTile from '../tiles/ServiceTile'
 
 type SectionProps = {
   section: NestedSection
+  healthMap?: Map<string, ServiceHealth>
 }
 
-export default function Section({ section }: SectionProps) {
+export default function Section({ section, healthMap }: SectionProps) {
   const isCollapsed = useIsCollapsed(section.id)
   const toggleSection = useUIStore((state) => state.toggleSection)
 
@@ -27,7 +29,11 @@ export default function Section({ section }: SectionProps) {
       />
       <SectionGrid cols={section.cols} isCollapsed={isCollapsed}>
         {section.services.map((service) => (
-          <ServiceTile key={service.id} service={service} />
+          <ServiceTile
+            key={service.id}
+            service={service}
+            health={healthMap?.get(service.id)}
+          />
         ))}
       </SectionGrid>
     </div>

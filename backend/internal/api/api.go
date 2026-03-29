@@ -9,12 +9,13 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/patrickfanella/dash/backend/internal/health"
 	"github.com/patrickfanella/dash/backend/internal/identity"
 	"github.com/patrickfanella/dash/backend/internal/models"
 	"github.com/patrickfanella/dash/backend/internal/services"
 )
 
-func NewRouter(queries *models.Queries, pool *pgxpool.Pool) chi.Router {
+func NewRouter(queries *models.Queries, pool *pgxpool.Pool, healthMatcher *health.Matcher, healthCache *health.Cache) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -43,6 +44,7 @@ func NewRouter(queries *models.Queries, pool *pgxpool.Pool) chi.Router {
 		r.Get("/whoami", handleWhoami)
 		r.Mount("/sections", sectionHandler.Routes())
 		r.Mount("/services", serviceHandler.Routes())
+		r.Mount("/health", NewHealthHandler(healthMatcher, healthCache, serviceSvc).Routes())
 		r.Post("/import", handleImport(pool))
 	})
 

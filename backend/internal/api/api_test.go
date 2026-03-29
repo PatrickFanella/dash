@@ -9,9 +9,12 @@ import (
 	"strings"
 	"testing"
 
+	"time"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/patrickfanella/dash/backend/internal/api"
 	"github.com/patrickfanella/dash/backend/internal/domain"
+	"github.com/patrickfanella/dash/backend/internal/health"
 	"github.com/patrickfanella/dash/backend/internal/models"
 	"github.com/patrickfanella/dash/backend/internal/testutil"
 )
@@ -31,7 +34,9 @@ func TestMain(m *testing.M) {
 
 	testPool = pool
 	testQueries = queries
-	testRouter = api.NewRouter(testQueries, pool)
+	hc := health.NewCache(60 * time.Second)
+	hm := health.NewMatcher(hc)
+	testRouter = api.NewRouter(testQueries, pool, hm, hc)
 
 	os.Exit(m.Run())
 }

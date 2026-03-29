@@ -10,6 +10,7 @@ type Config struct {
 	DatabaseURL         string
 	PrometheusURL       string
 	UptimeKumaURL       string
+	UptimeKumaSlug      string
 	ListenAddr          string
 	MetricsCacheTTL     time.Duration
 	HealthCacheTTL      time.Duration
@@ -40,6 +41,7 @@ func Load() (*Config, error) {
 	if cfg.UptimeKumaURL == "" {
 		return nil, fmt.Errorf("UPTIME_KUMA_URL is required")
 	}
+	cfg.UptimeKumaSlug = envOr("UPTIME_KUMA_SLUG", "default")
 
 	return cfg, nil
 }
