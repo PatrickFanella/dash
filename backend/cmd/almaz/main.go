@@ -16,6 +16,7 @@ import (
 	"github.com/patrickfanella/dash/backend/internal/database"
 	"github.com/patrickfanella/dash/backend/internal/health"
 	"github.com/patrickfanella/dash/backend/internal/importer"
+	"github.com/patrickfanella/dash/backend/internal/metrics"
 	"github.com/patrickfanella/dash/backend/internal/models"
 )
 
@@ -57,7 +58,12 @@ func main() {
 	go health.StartPoller(pollerCtx, healthClient, healthCache, cfg.HealthPollInterval)
 	healthMatcher := health.NewMatcher(healthCache)
 
-	router := api.NewRouter(queries, pool, healthMatcher, healthCache)
+	// Metrics monitoring subsystem
+	metricsClient := metrics.NewClient(cfg.PrometheusURL, 30*time.Second)
+	metricsCache := metrics.NewCache(cfg.MetricsCacheTTL)
+	go metrics.StartPoller(pollerCtx, metricsClient, metricsCache, cfg.MetricsPollInterval)
+
+	router := api.NewRouter(queries, pool, healthMatcher, healthCache, metricsCache)
 
 	// Mount the embedded frontend for all non-API routes.
 	distFS, err := fs.Sub(frontendFS, "dist")

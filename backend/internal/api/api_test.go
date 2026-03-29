@@ -15,6 +15,7 @@ import (
 	"github.com/patrickfanella/dash/backend/internal/api"
 	"github.com/patrickfanella/dash/backend/internal/domain"
 	"github.com/patrickfanella/dash/backend/internal/health"
+	"github.com/patrickfanella/dash/backend/internal/metrics"
 	"github.com/patrickfanella/dash/backend/internal/models"
 	"github.com/patrickfanella/dash/backend/internal/testutil"
 )
@@ -36,7 +37,8 @@ func TestMain(m *testing.M) {
 	testQueries = queries
 	hc := health.NewCache(60 * time.Second)
 	hm := health.NewMatcher(hc)
-	testRouter = api.NewRouter(testQueries, pool, hm, hc)
+	mc := metrics.NewCache(30 * time.Second)
+	testRouter = api.NewRouter(testQueries, pool, hm, hc, mc)
 
 	os.Exit(m.Run())
 }
