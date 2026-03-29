@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 type SectionGridProps = {
   cols: number
@@ -16,13 +16,37 @@ const colsClassMap: Record<number, string> = {
 export default function SectionGrid({ cols, isCollapsed, children }: SectionGridProps) {
   const normalizedCols = Math.min(4, Math.max(1, cols))
   const colsClass = colsClassMap[normalizedCols]
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [contentHeight, setContentHeight] = useState(0)
+
+  useEffect(() => {
+    const element = contentRef.current
+
+    if (!element) {
+      return
+    }
+
+    const updateHeight = () => {
+      setContentHeight(element.scrollHeight)
+    }
+
+    updateHeight()
+
+    const observer = new ResizeObserver(updateHeight)
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [children, normalizedCols])
 
   return (
     <div
-      className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'}`}
+      className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}
+      style={{ maxHeight: isCollapsed ? 0 : contentHeight }}
       aria-hidden={isCollapsed}
     >
-      <div className={`grid gap-4 ${colsClass}`}>{children}</div>
+      <div ref={contentRef} className={`grid gap-4 ${colsClass}`} inert={isCollapsed}>
+        {children}
+      </div>
     </div>
   )
 }
