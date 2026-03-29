@@ -44,7 +44,7 @@ export default function SectionGrid({ cols, isCollapsed, children }: SectionGrid
       style={{ maxHeight: isCollapsed ? 0 : contentHeight }}
       aria-hidden={isCollapsed}
     >
-      <div ref={contentRef} className={`grid gap-4 ${colsClass}`} inert={isCollapsed}>
+      <div ref={contentRef} className={`grid gap-4 ${colsClass}`} inert={isCollapsed ? true : undefined}>
         {children}
       </div>
     </div>
