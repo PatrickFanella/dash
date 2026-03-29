@@ -1,62 +1,53 @@
-import { useEffect, useState } from 'react'
-import { useUIStore, useIsCollapsed, type SectionDefault } from '../stores/uiStore'
-import SectionGrid from '../components/layout/SectionGrid'
-
-type Section = {
-  id: string
-  name: string
-  icon: string
-  cols: number
-  collapsed: boolean
-}
-
-function SectionRow({ section }: { section: Section }) {
-  const collapsed = useIsCollapsed(section.id)
-  const toggleSection = useUIStore((state) => state.toggleSection)
-
-  return (
-    <div>
-      <button
-        type="button"
-        className="w-full rounded-t-md border border-white/20 px-4 py-3 text-left font-medium hover:bg-white/5"
-        onClick={() => toggleSection(section.id)}
-      >
-        {section.name} {collapsed ? '▸' : '▾'}
-      </button>
-      <SectionGrid cols={section.cols} isCollapsed={collapsed}>
-        <div className="rounded border border-white/10 p-4">
-          <p className="text-sm text-white/70">Services will render here</p>
-        </div>
-      </SectionGrid>
-    </div>
-  )
-}
+import { useEffect } from 'react'
+import { useUIStore } from '../stores/uiStore'
+import type { SectionDefault } from '../stores/uiStore'
+import { useSections } from '../hooks/useSections'
+import Section from '../components/layout/Section'
 
 export default function DashboardPage() {
-  const [sections, setSections] = useState<Section[]>([])
+  const { data: sections, isLoading, isError, error } = useSections()
   const initializeSections = useUIStore((state) => state.initializeSections)
 
   useEffect(() => {
-    const loadSections = async () => {
-      const response = await fetch('/api/v1/sections?nested=false')
-      if (!response.ok) {
-        return
-      }
+    if (!sections) return
+    const defaults: SectionDefault[] = sections.map(({ id, collapsed }) => ({ id, collapsed }))
+    initializeSections(defaults)
+  }, [sections, initializeSections])
 
-      const data = (await response.json()) as Section[]
-      setSections(data)
-      const defaults: SectionDefault[] = data.map(({ id, collapsed }) => ({ id, collapsed }))
-      initializeSections(defaults)
-    }
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold">Dashboard</h2>
+        <p className="text-white/50">Loading...</p>
+      </div>
+    )
+  }
 
-    void loadSections()
-  }, [initializeSections])
+  if (isError) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold">Dashboard</h2>
+        <p className="text-red-400">
+          Failed to load sections{error instanceof Error ? `: ${error.message}` : '.'}
+        </p>
+      </div>
+    )
+  }
+
+  if (!sections || sections.length === 0) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold">Dashboard</h2>
+        <p className="text-white/50">No sections configured.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold">Dashboard</h2>
       {sections.map((section) => (
-        <SectionRow key={section.id} section={section} />
+        <Section key={section.id} section={section} />
       ))}
     </div>
   )
