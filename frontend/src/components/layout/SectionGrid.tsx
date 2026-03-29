@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 type SectionGridProps = {
   cols: number
@@ -6,6 +6,8 @@ type SectionGridProps = {
   children: ReactNode
 }
 
+// Static class strings — Tailwind v4 scans these at build time.
+// Do not construct these dynamically (e.g., template literals).
 const colsClassMap: Record<number, string> = {
   1: 'grid-cols-1',
   2: 'grid-cols-1 sm:grid-cols-2',
@@ -16,36 +18,18 @@ const colsClassMap: Record<number, string> = {
 export default function SectionGrid({ cols, isCollapsed, children }: SectionGridProps) {
   const normalizedCols = Math.min(4, Math.max(1, cols))
   const colsClass = colsClassMap[normalizedCols]
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [contentHeight, setContentHeight] = useState(0)
-
-  useEffect(() => {
-    const element = contentRef.current
-
-    if (!element) {
-      return
-    }
-
-    const updateHeight = () => {
-      setContentHeight(element.scrollHeight)
-    }
-
-    updateHeight()
-
-    const observer = new ResizeObserver(updateHeight)
-    observer.observe(element)
-
-    return () => observer.disconnect()
-  }, [children, normalizedCols])
 
   return (
     <div
-      className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}
-      style={{ maxHeight: isCollapsed ? 0 : contentHeight }}
+      className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+        isCollapsed ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
+      }`}
       aria-hidden={isCollapsed}
     >
-      <div ref={contentRef} className={`grid gap-4 ${colsClass}`} inert={isCollapsed ? true : undefined}>
-        {children}
+      <div className="overflow-hidden">
+        <div className={`grid gap-4 ${colsClass}`} inert={isCollapsed}>
+          {children}
+        </div>
       </div>
     </div>
   )
