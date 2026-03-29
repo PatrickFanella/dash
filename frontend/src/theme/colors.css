@@ -1,0 +1,22 @@
+@theme {
+  /* Background hierarchy — deep darks with blue-purple undertone */
+  --color-bg-primary: #0a0a12;
+  --color-bg-secondary: #11111d;
+  --color-bg-tertiary: #1a1a2e;
+
+  /* Accent colors — neon, vibrant, distinct */
+  --color-accent-primary: #00e5ff;
+  --color-accent-secondary: #b24bf3;
+  --color-accent-warning: #ff9f1c;
+  --color-accent-danger: #ff3860;
+  --color-accent-success: #00e676;
+
+  /* Text hierarchy */
+  --color-text-primary: #e0e0e8;
+  --color-text-secondary: #9898a8;
+  --color-text-muted: #5a5a6e;
+
+  /* Borders */
+  --color-border-default: #1e1e30;
+  --color-border-glow: #00e5ff4d;
+}

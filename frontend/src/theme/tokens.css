@@ -1,0 +1,12 @@
+@theme {
+  /* Border radius — angular, sharp SUBCULT aesthetic */
+  --radius-panel: 2px;
+  --radius-card: 3px;
+
+  /* Shadows — atmospheric glows, not drop shadows */
+  --shadow-glow: 0 0 15px color-mix(in srgb, var(--color-accent-primary) 15%, transparent);
+  --shadow-glow-hover: 0 0 20px color-mix(in srgb, var(--color-accent-primary) 25%, transparent);
+  --shadow-glow-danger: 0 0 15px color-mix(in srgb, var(--color-accent-danger) 20%, transparent);
+  --shadow-glow-success: 0 0 15px color-mix(in srgb, var(--color-accent-success) 20%, transparent);
+  --shadow-glow-warning: 0 0 15px color-mix(in srgb, var(--color-accent-warning) 20%, transparent);
+}

@@ -1,0 +1,29 @@
+/* Terminal glow utilities */
+
+@utility glow-border {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent-primary) 20%, transparent);
+}
+
+@utility glow-border-danger {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent-danger) 20%, transparent);
+}
+
+@utility glow-border-success {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent-success) 20%, transparent);
+}
+
+@utility glow-border-warning {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent-warning) 20%, transparent);
+}
+
+@utility glow-text {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-accent-primary) 40%, transparent);
+}
+
+@utility glow-text-danger {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-accent-danger) 40%, transparent);
+}
+
+@utility glow-text-success {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-accent-success) 40%, transparent);
+}

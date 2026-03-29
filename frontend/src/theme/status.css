@@ -1,0 +1,32 @@
+/* Status indicator color system — used by Track C health components */
+
+@utility status-up {
+  color: var(--color-accent-success);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-accent-success) 30%, transparent);
+}
+
+@utility status-down {
+  color: var(--color-accent-danger);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-accent-danger) 30%, transparent);
+  animation: glow-pulse-danger 2s ease-in-out infinite;
+}
+
+@utility status-degraded {
+  color: var(--color-accent-warning);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-accent-warning) 30%, transparent);
+}
+
+@utility status-unknown {
+  color: var(--color-text-muted);
+}
+
+@keyframes glow-pulse-danger {
+  0%, 100% { text-shadow: 0 0 6px color-mix(in srgb, var(--color-accent-danger) 20%, transparent); }
+  50% { text-shadow: 0 0 14px color-mix(in srgb, var(--color-accent-danger) 45%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-down {
+    animation: none !important;
+  }
+}

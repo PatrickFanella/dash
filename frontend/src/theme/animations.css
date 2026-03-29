@@ -1,0 +1,61 @@
+/* Glitch text — RGB channel split */
+@keyframes glitch-text {
+  0%, 100% { text-shadow: none; }
+  20% { text-shadow: -2px 0 var(--color-accent-danger), 2px 0 var(--color-accent-primary); }
+  40% { text-shadow: 2px 0 var(--color-accent-danger), -2px 0 var(--color-accent-primary); }
+  60% { text-shadow: -1px 0 var(--color-accent-danger), 1px 0 var(--color-accent-primary); }
+  80% { text-shadow: 1px 0 var(--color-accent-danger), -1px 0 var(--color-accent-primary); }
+}
+
+/* Glitch flicker — brightness pulse */
+@keyframes glitch-flicker {
+  0%, 100% { opacity: 1; }
+  5% { opacity: 0.8; }
+  10% { opacity: 1; }
+  15% { opacity: 0.6; }
+  20% { opacity: 1; }
+}
+
+/* Glitch slice — horizontal clip-path displacement */
+@keyframes glitch-slice {
+  0%, 100% { clip-path: inset(0 0 0 0); }
+  20% { clip-path: inset(20% 0 60% 0); transform: translateX(-3px); }
+  40% { clip-path: inset(40% 0 30% 0); transform: translateX(3px); }
+  60% { clip-path: inset(60% 0 10% 0); transform: translateX(-2px); }
+  80% { clip-path: inset(10% 0 80% 0); transform: translateX(2px); }
+}
+
+/* Page fade-in */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Glow pulse — breathing animation */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 10px color-mix(in srgb, var(--color-accent-primary) 15%, transparent); }
+  50% { box-shadow: 0 0 20px color-mix(in srgb, var(--color-accent-primary) 30%, transparent); }
+}
+
+@theme {
+  --animate-glitch-text: glitch-text 0.3s ease-in-out;
+  --animate-glitch-text-loop: glitch-text 2s infinite;
+  --animate-glitch-flicker: glitch-flicker 0.4s ease-in-out;
+  --animate-glitch-flicker-loop: glitch-flicker 3s infinite;
+  --animate-glitch-slice: glitch-slice 0.3s ease-in-out;
+  --animate-glitch-slice-loop: glitch-slice 2.5s infinite;
+  --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+  --animate-fade-in: fade-in 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-glitch-text,
+  .animate-glitch-text-loop,
+  .animate-glitch-flicker,
+  .animate-glitch-flicker-loop,
+  .animate-glitch-slice,
+  .animate-glitch-slice-loop,
+  .animate-glow-pulse {
+    animation: none !important;
+  }
+}

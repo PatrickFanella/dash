@@ -10,14 +10,14 @@ export default function SectionHeader({ name, icon: _icon, serviceCount, isColla
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 border border-white/20 px-4 py-3 text-left font-medium hover:bg-white/5"
+      className="flex w-full items-center gap-3 border-l-2 border-accent-primary bg-bg-secondary px-4 py-3 text-left transition-colors hover:bg-bg-tertiary"
       aria-expanded={!isCollapsed}
       onClick={onToggle}
     >
       <svg
         viewBox="0 0 20 20"
         fill="currentColor"
-        className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`}
+        className={`h-4 w-4 shrink-0 text-accent-primary transition-transform duration-200 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`}
       >
         <path
           fillRule="evenodd"
@@ -25,8 +25,12 @@ export default function SectionHeader({ name, icon: _icon, serviceCount, isColla
           clipRule="evenodd"
         />
       </svg>
-      <span className="truncate">{name}</span>
-      <span className="ml-auto shrink-0 text-xs text-white/50">{serviceCount}</span>
+      <span className="truncate font-mono text-sm font-medium uppercase tracking-wider">
+        {name}
+      </span>
+      <span className="ml-auto shrink-0 font-mono text-xs text-text-muted">
+        {serviceCount}
+      </span>
     </button>
   )
 }
