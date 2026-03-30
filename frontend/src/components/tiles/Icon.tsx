@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { library, type IconName } from '@fortawesome/fontawesome-svg-core'
-import * as simpleIcons from 'simple-icons'
 
 // Register all solid icons for dynamic lookup
 library.add(fas)
@@ -70,13 +69,37 @@ function HomelabIcon({ name, size, className }: { name: string; size: number; cl
   )
 }
 
-// --- Simple Icons (npm) ---
+// --- Simple Icons (dynamic import to avoid bundling all 3000+ icons) ---
+
+const siCache = new Map<string, string | null>()
 
 function SimpleIcon({ slug, size, className }: { slug: string; size: number; className: string }) {
-  const key = `si${slug.charAt(0).toUpperCase()}${slug.slice(1)}` as keyof typeof simpleIcons
-  const icon = simpleIcons[key] as simpleIcons.SimpleIcon | undefined
+  const [path, setPath] = useState<string | null>(siCache.get(slug) ?? null)
+  const [loaded, setLoaded] = useState(siCache.has(slug))
 
-  if (!icon) return <FallbackIcon size={size} className={className} />
+  useEffect(() => {
+    if (siCache.has(slug)) {
+      setPath(siCache.get(slug) ?? null)
+      setLoaded(true)
+      return
+    }
+    const key = `si${slug.charAt(0).toUpperCase()}${slug.slice(1)}`
+    import('simple-icons')
+      .then((mod) => {
+        const icon = (mod as Record<string, { path?: string }>)[key]
+        const p = icon?.path ?? null
+        siCache.set(slug, p)
+        setPath(p)
+        setLoaded(true)
+      })
+      .catch(() => {
+        siCache.set(slug, null)
+        setLoaded(true)
+      })
+  }, [slug])
+
+  if (!loaded) return <div style={{ width: size, height: size }} />
+  if (!path) return <FallbackIcon size={size} className={className} />
 
   return (
     <svg
@@ -87,7 +110,7 @@ function SimpleIcon({ slug, size, className }: { slug: string; size: number; cla
       fill="currentColor"
       className={className}
     >
-      <path d={icon.path} />
+      <path d={path} />
     </svg>
   )
 }
