@@ -28,7 +28,7 @@ export default function Sparkline({
     height,
     cursor: { show: false },
     legend: { show: false },
-    select: { show: false },
+    select: { show: false, left: 0, top: 0, width: 0, height: 0 },
     axes: [{ show: false }, { show: false }],
     series: [
       {},

@@ -19,5 +19,6 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /almaz ./cmd/almaz
 FROM scratch
 COPY --from=backend /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=backend /almaz /almaz
+COPY migrations/ /migrations/
 EXPOSE 8080
 ENTRYPOINT ["/almaz"]

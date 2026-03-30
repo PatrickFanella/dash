@@ -56,7 +56,7 @@ const persistState = (collapsedSections: Set<string>, knownSections: Set<string>
 
 const persisted = loadPersistedState()
 
-export const useUIStore = create<UIStoreState>((set, get) => ({
+export const useUIStore = create<UIStoreState>((set, _get) => ({
   collapsedSections: new Set(persisted.collapsedSections),
   knownSections: new Set(persisted.knownSections),
   toggleSection: (id) =>
