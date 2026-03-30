@@ -1,0 +1,29 @@
+services:
+  almaz:
+    build: .
+    image: almaz:latest
+    container_name: almaz
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    environment:
+      - DATABASE_URL=postgresql://almaz:almaz@postgres:5432/almaz
+      - PROMETHEUS_URL=http://prometheus:9090
+      - UPTIME_KUMA_URL=http://uptime-kuma:3001
+      - UPTIME_KUMA_SLUG=default
+      - LISTEN_ADDR=:8080
+    healthcheck:
+      test: ["/almaz", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+
+networks:
+  internal:
+    external: true
