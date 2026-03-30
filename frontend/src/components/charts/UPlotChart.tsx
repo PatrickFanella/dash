@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import uPlot from 'uplot'
 import 'uplot/dist/uPlot.min.css'
 
@@ -11,46 +11,49 @@ type UPlotChartProps = {
 export default function UPlotChart({ data, options, height }: UPlotChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<uPlot | null>(null)
+  const optionsRef = useRef(options)
+  const dataRef = useRef(data)
+  const [width, setWidth] = useState(0)
 
-  // Create/recreate chart when options change
+  optionsRef.current = options
+  dataRef.current = data
+
+  // Track container width via ResizeObserver
   useEffect(() => {
     if (!containerRef.current) return
-
     const el = containerRef.current
-    const width = el.clientWidth
 
-    chartRef.current?.destroy()
+    const ro = new ResizeObserver(() => {
+      const w = el.clientWidth
+      if (w > 0) setWidth(w)
+    })
+    ro.observe(el)
+    // Initial measurement
+    if (el.clientWidth > 0) setWidth(el.clientWidth)
+    return () => ro.disconnect()
+  }, [])
+
+  // Create/update chart when width, height, or data change
+  useEffect(() => {
+    if (!containerRef.current || width === 0) return
+
+    if (chartRef.current) {
+      chartRef.current.setSize({ width, height })
+      chartRef.current.setData(dataRef.current)
+      return
+    }
+
     chartRef.current = new uPlot(
-      { ...options, width, height },
-      data,
-      el,
+      { ...optionsRef.current, width, height },
+      dataRef.current,
+      containerRef.current,
     )
 
     return () => {
       chartRef.current?.destroy()
       chartRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options, height])
+  }, [width, height, data])
 
-  // Update data without recreating chart
-  useEffect(() => {
-    chartRef.current?.setData(data)
-  }, [data])
-
-  // Resize on container width change
-  useEffect(() => {
-    if (!containerRef.current) return
-    const el = containerRef.current
-
-    const ro = new ResizeObserver(() => {
-      if (chartRef.current) {
-        chartRef.current.setSize({ width: el.clientWidth, height })
-      }
-    })
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [height])
-
-  return <div ref={containerRef} />
+  return <div ref={containerRef} style={{ width: '100%' }} />
 }

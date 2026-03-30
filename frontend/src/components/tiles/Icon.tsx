@@ -62,8 +62,8 @@ function HomelabIcon({ name, size, className }: { name: string; size: number; cl
 
   return (
     <div
-      className={className}
-      style={{ width: size, height: size }}
+      className={`[&>svg]:h-full [&>svg]:w-full ${className}`}
+      style={{ width: size, height: size, overflow: 'hidden' }}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   )
